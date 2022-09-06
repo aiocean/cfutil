@@ -93,7 +93,7 @@ func ProtobufHandler(w http.ResponseWriter, r *http.Request, request proto.Messa
 		return
 	}
 
-	if err := ReadRequest(r, &request); err != nil {
+	if err := ReadRequest(r, request); err != nil {
 		WriteError(w, r, http.StatusBadRequest, err)
 		return
 	}
