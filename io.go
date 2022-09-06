@@ -82,12 +82,7 @@ func ReadRequest(r *http.Request, message interface{}) error {
 	return nil
 }
 
-type Doer struct {
-	Request proto.Message
-	Handler func() (proto.Message, error)
-}
-
-func ProtobufHandler(w http.ResponseWriter, r *http.Request, doer *Doer) {
+func ProtobufHandler(w http.ResponseWriter, r *http.Request, request proto.Message, do func(proto.Message) (proto.Message, error)) {
 	if err := ApplyCors(w, r); err != nil {
 		WriteError(w, r, http.StatusInternalServerError, err)
 		return
@@ -98,12 +93,12 @@ func ProtobufHandler(w http.ResponseWriter, r *http.Request, doer *Doer) {
 		return
 	}
 
-	if err := ReadRequest(r, doer.Request); err != nil {
+	if err := ReadRequest(r, request); err != nil {
 		WriteError(w, r, http.StatusBadRequest, err)
 		return
 	}
 
-	response, err := doer.Handler()
+	response, err := do(request)
 	if err != nil {
 		WriteError(w, r, http.StatusInternalServerError, err)
 		return
