@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/golang/protobuf/jsonpb"
-	"github.com/golang/protobuf/proto"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/runtime/protoiface"
 )
 
