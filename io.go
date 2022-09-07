@@ -82,6 +82,7 @@ func ReadRequest(r *http.Request, message interface{}) error {
 }
 
 func ProtobufHandler(w http.ResponseWriter, r *http.Request, request proto.Message, do func(context.Context, proto.Message) (proto.Message, error)) {
+
 	if err := ApplyCors(w, r); err != nil {
 		WriteError(w, r, http.StatusInternalServerError, err)
 		return
