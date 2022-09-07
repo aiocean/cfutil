@@ -1,6 +1,7 @@
 package cfutil
 
 import (
+	"context"
 	"io"
 	"net/http"
 	"sync"
@@ -65,7 +66,6 @@ func WriteError(w http.ResponseWriter, r *http.Request, status int, err error) e
 func ReadRequest(r *http.Request, message interface{}) error {
 	// check content type
 	if r.Header.Get("Content-Type") == "application/json" {
-
 		if err := jsonpb.Unmarshal(r.Body, message.(protoiface.MessageV1)); err != nil {
 			return err
 		}
@@ -74,7 +74,6 @@ func ReadRequest(r *http.Request, message interface{}) error {
 	}
 
 	content, _ := io.ReadAll(r.Body)
-
 	if err := proto.Unmarshal(content, message.(proto.Message)); err != nil {
 		return err
 	}
@@ -82,7 +81,7 @@ func ReadRequest(r *http.Request, message interface{}) error {
 	return nil
 }
 
-func ProtobufHandler(w http.ResponseWriter, r *http.Request, do func(proto.Message) (proto.Message, error)) {
+func ProtobufHandler(w http.ResponseWriter, r *http.Request, do func(context.Context, proto.Message) (proto.Message, error)) {
 	if err := ApplyCors(w, r); err != nil {
 		WriteError(w, r, http.StatusInternalServerError, err)
 		return
@@ -100,7 +99,7 @@ func ProtobufHandler(w http.ResponseWriter, r *http.Request, do func(proto.Messa
 		return
 	}
 
-	response, err := do(request)
+	response, err := do(r.Context(), request)
 	if err != nil {
 		WriteError(w, r, http.StatusInternalServerError, err)
 		return
